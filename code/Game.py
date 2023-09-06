@@ -1,5 +1,4 @@
 import pygame
-
 from code.Const import WIN_WIDTH, WIN_HEIGHT
 from code.Menu import Menu
 
@@ -10,11 +9,6 @@ class Game:
         self.window = pygame.display.set_mode(size=(WIN_WIDTH, WIN_HEIGHT))
 
     def run(self):
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+        while True:
             menu = Menu(self.window)
             menu.run()
-        pygame.quit()
