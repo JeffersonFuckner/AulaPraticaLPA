@@ -6,8 +6,12 @@ import pygame.display
 from pygame import Surface, Rect
 from pygame.font import Font
 
+from code.Enemy import Enemy
 from code.Entity import Entity
 from code.EntityFactory import EntityFactory
+from code.EntityMediator import EntityMediator
+from code.Player import Player
+from code.PlayerShot import PlayerShot
 
 
 class Level:
@@ -24,16 +28,30 @@ class Level:
 
     def run(self):
         pygame.mixer.music.load(f"./assets/{self.name}.mp3")
+        pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
         clock = pygame.time.Clock()
         while True:
             clock.tick(60)
+            #
             for ent in self.entity_list:
                 self.window.blit(source=ent.surf, dest=ent.rect)  # Aqui desenho entidades
-                self.level_text(14, f"FPS: {clock.get_fps():.0f}", C_WHITE, (10, 10))
                 ent.move()
-            pygame.display.flip()
 
+                if isinstance(ent, (Player, Enemy)):
+                    shoot = ent.shoot()
+                    if shoot is not None:
+                        self.entity_list.append(shoot)
+
+            # Mostrar textos na tela
+            self.level_text(14, f"FPS: {clock.get_fps():.0f}", C_WHITE, (10, 10))
+            self.level_text(14, f"Entidades: {len(self.entity_list):.0f}", C_WHITE, (10, 25))
+            # Atualizar tela
+            pygame.display.flip()
+            # Verificar relacionamentos de entidades
+            EntityMediator.verify_collision(entity_list=self.entity_list)
+            EntityMediator.verify_health(entity_list=self.entity_list)
+            # Conferir Eventos
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
